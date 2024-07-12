@@ -39,6 +39,7 @@ const server = net.createServer((socket) => {
             content = compressed;
             console.log(content)
             socket.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${content.length}\r\n${encoding}\r\n${content}`)
+            socket.end()
           }
         })
       } else {
