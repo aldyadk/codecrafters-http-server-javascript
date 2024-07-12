@@ -24,7 +24,8 @@ const server = net.createServer((socket) => {
     if (method === 'GET' && path === '/') {
       socket.write('HTTP/1.1 200 OK\r\n\r\n')
     } else if (method === 'GET' && pathA === 'echo' && !!pathB) {
-      const headerValue = splitheaders.find(header => header[0] === 'Accept-Encoding')[1];    
+      let headerValue = splitheaders.find(header => header[0] === 'Accept-Encoding');  
+      headerValue = headerValue ? headerValue[1] : '';
       const encoding = headerValue.includes('gzip') ? 'Content-Encoding: gzip\r\n' : '';
       socket.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${pathB.length}\r\n${encoding}\r\n${pathB}`)
     } else if (method === 'GET' && path === '/user-agent') {
