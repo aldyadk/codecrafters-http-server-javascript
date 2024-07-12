@@ -44,7 +44,7 @@ const server = net.createServer((socket) => {
         const bodyEncoded = zlib.gzipSync(pathB);
         console.log(bodyEncoded)
         const bodyEncodedLength = bodyEncoded.length;
-        socket.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${bodyEncodedLength}\r\n${encoding}\r\n${bodyEncoded}`)
+        socket.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${bodyEncodedLength}\r\n${encoding}\r\n${bodyEncoded.toString('hex')}`)
       } else {
         socket.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${pathB.length}\r\n${encoding}\r\n${content}`)
       }
