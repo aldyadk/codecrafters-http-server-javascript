@@ -12,17 +12,22 @@ const server = net.createServer((socket) => {
   const endingConnection = () => socket.end()
 
   socket.on('data', (data) => {
-    const [request, headers, body] = data.toString().split('\r\n');
+    console.log(data.toString())
+    const [request, ...rest] = data.toString().split('\r\n');
     const [method, path, version] = request.split(' ');
-    const [path0, pathA, pathB, ...subPath] = path.split('/');
-    const [headerName, headerValue] = headers.split(': ');
-    // console.log(`Received request: ${request}`);
-    // console.log(`headers: ${headers}`);
-    // console.log(`Received body: ${body}`);
+    const [_, pathA, pathB] = path.split('/');
+    const emptyLineIndex = rest.indexOf('');
+    const headers = rest.slice(0, emptyLineIndex);
+    const body = rest.slice(emptyLineIndex);
+    const splitheaders = headers.map(header => header.split(': '));
+    
     if (method === 'GET' && path === '/') {
       socket.write('HTTP/1.1 200 OK\r\n\r\n')
     } else if (method === 'GET' && pathA === 'echo' && !!pathB) {
       socket.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${pathB.length}\r\n\r\n${pathB}`)
+    } else if (method === 'GET' && path === '/user-agent') {
+      const headerValue = splitheaders.find(header => header[0] === 'User-Agent')[1];
+      socket.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${headerValue.length}\r\n\r\n${headerValue}`)
     } else {
       socket.write('HTTP/1.1 404 Not Found\r\n\r\n');
     }
