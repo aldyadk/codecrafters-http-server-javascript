@@ -29,14 +29,14 @@ const server = net.createServer((socket) => {
       headerEncoding = headerEncoding ? headerEncoding[1] : '';
       let encoding, content = pathB;
       if (headerEncoding) {
-        encoding = headerEncoding.includes('gzip') ? 'Content-Encoding: gzip\r\n' : '';
+        encoding = headerEncoding.includes('gzip') ? 'Content-Encoding: gzip\r\n' : '\r\n';
         zlib.gzip(content, (err, compressed) => {
           if (err) {
             console.error(err)
             socket.write('HTTP/1.1 500 Internal Server Error\r\n\r\n');
           } else {
             console.log(content)
-            content = compressed;
+            content = compressed.toString('hex');
             console.log(content)
             socket.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${content.length}\r\n${encoding}\r\n${content}`)
           }
