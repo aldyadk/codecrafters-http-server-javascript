@@ -13,6 +13,7 @@ const server = net.createServer((socket) => {
 
   socket.on('data', (data) => {
     const directory = process.argv[3]
+    const filePath = `${directory}/${pathB}`;
     const [request, ...rest] = data.toString().split('\r\n');
     const [method, path, version] = request.split(' ');
     const [_, pathA, pathB] = path.split('/');
@@ -29,7 +30,6 @@ const server = net.createServer((socket) => {
       const headerValue = splitheaders.find(header => header[0] === 'User-Agent')[1];
       socket.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${headerValue.length}\r\n\r\n${headerValue}`)
     } else if (method === 'GET' && pathA === 'files' && !!pathB) {
-      const filePath = `${directory}/${pathB}`;
       fs.stat(filePath, (err, stats) => {
         if (err) {
           console.error('Error reading stat:', err);
@@ -42,6 +42,14 @@ const server = net.createServer((socket) => {
           }
           socket.write(`HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: ${stats.size}\r\n\r\n${content}`)
         });
+      });
+    } else if (method === 'POST' && pathA === 'files' && !!pathB && !!body) {
+      fs.writeFile(filePath, body, 'utf8', (err) => {
+        if (err) {
+          console.error('Error writing file:', err);
+          return socket.write('HTTP/1.1 500 Internal Server Error\r\n\r\n');
+        }
+        socket.write('HTTP/1.1 201 Created\r\n\r\n');
       });
     } else {
       socket.write('HTTP/1.1 404 Not Found\r\n\r\n');
