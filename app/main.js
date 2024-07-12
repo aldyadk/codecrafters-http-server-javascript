@@ -27,7 +27,7 @@ const server = net.createServer((socket) => {
     } else if (method === 'GET' && pathA === 'echo' && !!pathB) {
       let headerEncoding = splitheaders.find(header => header[0] === 'Accept-Encoding');
       headerEncoding = headerEncoding ? headerEncoding[1] : '';
-      let encoding, content = pathB;
+      let encoding = '', content = pathB;
       if (headerEncoding) {
         encoding = headerEncoding.includes('gzip') ? 'Content-Encoding: gzip\r\n' : '';
         zlib.gzip(content, (err, compressed) => {
@@ -41,7 +41,6 @@ const server = net.createServer((socket) => {
             socket.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${content.length}\r\n${encoding}\r\n`)
             socket.write(content)
             socket.end()
-            console.log('end')
           }
         })
       } else {
