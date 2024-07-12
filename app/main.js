@@ -1,5 +1,6 @@
 const net = require("net");
 const fs = require('fs');
+const zlib = require('zlib');
 
 // You can use print statements as follows for debugging, they'll be visible when running tests.
 console.log("Logs from your program will appear here!");
@@ -24,10 +25,23 @@ const server = net.createServer((socket) => {
     if (method === 'GET' && path === '/') {
       socket.write('HTTP/1.1 200 OK\r\n\r\n')
     } else if (method === 'GET' && pathA === 'echo' && !!pathB) {
-      let headerValue = splitheaders.find(header => header[0] === 'Accept-Encoding');  
-      headerValue = headerValue ? headerValue[1] : '';
-      const encoding = headerValue.includes('gzip') ? 'Content-Encoding: gzip\r\n' : '';
-      socket.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${pathB.length}\r\n${encoding}\r\n${pathB}`)
+      let headerEncoding = splitheaders.find(header => header[0] === 'Accept-Encoding');
+      headerEncoding = headerEncoding ? headerEncoding[1] : '';
+      let encoding, content = pathB;
+      if (headerEncoding) {
+        encoding = headerEncoding.includes('gzip') ? 'Content-Encoding: gzip\r\n' : '';
+        zlib.gzip(content, (err, data) => {
+          if (err) {
+            console.error(err)
+            socket.write('HTTP/1.1 500 Internal Server Error\r\n\r\n');
+          } else {
+            content = data.toString('base64');
+            socket.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${pathB.length}\r\n${encoding}\r\n${content}`)
+          }
+        })
+      } else {
+        socket.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${pathB.length}\r\n${encoding}\r\n${content}`)
+      }
     } else if (method === 'GET' && path === '/user-agent') {
       const headerValue = splitheaders.find(header => header[0] === 'User-Agent')[1];
       socket.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${headerValue.length}\r\n\r\n${headerValue}`)
