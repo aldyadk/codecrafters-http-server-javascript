@@ -30,6 +30,8 @@ const server = net.createServer((socket) => {
       const headerValue = splitheaders.find(header => header[0] === 'User-Agent')[1];
       socket.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${headerValue.length}\r\n\r\n${headerValue}`)
     } else if (method === 'GET' && pathA === 'files' && !!pathB) {
+      console.log('a',__dirname)
+      console.log('b',process.cwd())
       const filePath = `${process.cwd()}/${pathB}`;
       fs.stat(filePath, (err, stats) => {
         if (err) {
