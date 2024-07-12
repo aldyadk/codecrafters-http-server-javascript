@@ -29,7 +29,7 @@ const server = net.createServer((socket) => {
       headerEncoding = headerEncoding ? headerEncoding[1] : '';
       let encoding, content = pathB;
       if (headerEncoding) {
-        encoding = headerEncoding.includes('gzip') ? 'Content-Encoding: gzip' : '';
+        encoding = headerEncoding.includes('gzip') ? 'Content-Encoding: gzip\r\n' : '';
         zlib.gzip(content, (err, compressed) => {
           if (err) {
             console.error(err)
