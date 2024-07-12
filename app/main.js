@@ -6,14 +6,13 @@ console.log("Logs from your program will appear here!");
 
 // Uncomment this to pass the first stage
 const server = net.createServer((socket) => {
+
   socket.on("close", () => {
     socket.end();
   });
 
-  const endingConnection = () => socket.end()
-
   socket.on('data', (data) => {
-    console.log(data.toString())
+    const directory = process.argv[3]
     const [request, ...rest] = data.toString().split('\r\n');
     const [method, path, version] = request.split(' ');
     const [_, pathA, pathB] = path.split('/');
@@ -30,9 +29,7 @@ const server = net.createServer((socket) => {
       const headerValue = splitheaders.find(header => header[0] === 'User-Agent')[1];
       socket.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${headerValue.length}\r\n\r\n${headerValue}`)
     } else if (method === 'GET' && pathA === 'files' && !!pathB) {
-      console.log('a',__dirname)
-      console.log('b',process.cwd())
-      const filePath = `${process.cwd()}/${pathB}`;
+      const filePath = `${directory}/${pathB}`;
       fs.stat(filePath, (err, stats) => {
         if (err) {
           console.error('Error reading stat:', err);
