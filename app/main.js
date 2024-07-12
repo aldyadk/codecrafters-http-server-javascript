@@ -18,7 +18,7 @@ const server = net.createServer((socket) => {
     const [_, pathA, pathB] = path.split('/');
     const emptyLineIndex = rest.indexOf('');
     const headers = rest.slice(0, emptyLineIndex);
-    const body = rest.slice(emptyLineIndex);
+    const body = rest.slice(emptyLineIndex)[1];
     const splitheaders = headers.map(header => header.split(': '));
 
     if (method === 'GET' && path === '/') {
@@ -29,7 +29,7 @@ const server = net.createServer((socket) => {
       const headerValue = splitheaders.find(header => header[0] === 'User-Agent')[1];
       socket.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${headerValue.length}\r\n\r\n${headerValue}`)
     } else if (method === 'GET' && pathA === 'files' && !!pathB) {
-      const filePath = `${directory}/${pathB}`;
+      const filePath = `${directory ? directory : './'}${pathB}`;
       fs.stat(filePath, (err, stats) => {
         if (err) {
           console.error('Error reading stat:', err);
@@ -44,7 +44,8 @@ const server = net.createServer((socket) => {
         });
       });
     } else if (method === 'POST' && pathA === 'files' && !!pathB && !!body) {
-      const filePath = `${directory}/${pathB}`;
+      console.log(body)
+      const filePath = `${directory ? directory : './'}${pathB}`;
       fs.writeFile(filePath, body, 'utf8', (err) => {
         if (err) {
           console.error('Error writing file:', err);
