@@ -35,7 +35,7 @@ const server = net.createServer((socket) => {
             console.error(err)
             socket.write('HTTP/1.1 500 Internal Server Error\r\n\r\n');
           } else {
-            content = data.toString('base64');
+            content = data;
             socket.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${pathB.length}\r\n${encoding}\r\n${content}`)
           }
         })
