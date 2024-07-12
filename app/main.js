@@ -41,6 +41,7 @@ const server = net.createServer((socket) => {
             socket.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${content.length}\r\n${encoding}\r\n`)
             socket.write(content)
             socket.end()
+            console.log('end')
           }
         })
       } else {
